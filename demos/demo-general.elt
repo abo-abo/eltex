@@ -1,0 +1,116 @@
+(setq eltex-filename "~/lpaper/lpaper.tex")
+(require 'eltex-macros)
+
+;;* Document
+
+(documentclass
+ '("article" "11pt")
+ "\\setlength{\\topmargin}{-.5in}
+\\setlength{\\textheight}{9in}
+\\setlength{\\oddsidemargin}{.125in}
+\\setlength{\\textwidth}{6.25in}"
+ (document
+  "\\renewcommand{\\today}{November 2, 1994}"
+  (maketitle
+   :title "Latex Typesetting By Example"
+   :author "Phil Farrell\\\\ Standford University School of Earth Sciences")
+  "This article demonstrates a basic set of LaTeX formatting commands.
+Compare the typeset output side-by-side with the input document."
+  (plain-text)
+  (displayed-text)
+  (mathematical-equations)))
+
+;;** Plain Text
+(defsection plain-text "Plain Text"
+  "Type your text in free-format; lines can be as long
+or as short
+as you wish.
+        You can indent         or space out
+        your input 
+            text in 
+                any way you like to highlight the structure
+        of your manuscript and make it easier to edit.
+LaTeX fills lines and adjusts spacing between words to produce an
+aesthetically pleasing result.
+
+Completely blank lines in the input file break your text into
+paragraphs.
+To change the font for a single character, word, or set of words, 
+enclose the word and the font changing command within braces, 
+"(em "like this")"A font changing command not enclosed in braces,
+like the change to \\bf bold here, keeps that change in effect
+until the end of the document or until countermanded by another
+font switch, like this change back to \\rm roman.")
+
+;;** Displayed Text
+(defsection displayed-text "Displayed Text"
+  "Use the ``quote'' and ``quotation'' environments for typesetting
+quoted material or any other text that should be slightly indented and
+set off from the normal text."
+  (quotation
+   "The quote and quotation environments are similar, but use
+different settings for paragraph indentation and spacing.
+
+\\em When in doubt, consult the manual.")
+  "So far, I have demonstrated titles, paragraphs, font changes,
+and section headings.  Now, I am going to show lists and tables."
+  (enumerate
+   ("The ``enumerate'' environment numbers the list elements,
+   like this.
+
+Items in a list can contain multiple paragraphs.  These
+paragraphs are appropriately spaced and indented according to
+their position in the list."
+    (itemize
+     ("The ``itemize'' environment sets off list items with
+``bullets'', like this.  Finally, the ``description'' environment
+lets you put your own"
+      (description
+       ("A" "label on each item, like this ``A''.")
+       ("If the label is long,"
+        "the first line of the item text will be spaced over to the right "
+        "as needed.")))
+     ("Of course, lists can be nested, each type up to at least
+four levels.  One type of list can be nested within another
+type."
+      (itemize
+       ("Nested lists of the same type will change style of
+numbering or ``bullets'' as needed.")))))
+   ("Don't forget to close off all list environments with the 
+appropriate \\verb+\\end{...}+ command.
+Indenting \\verb+\\begin{...}+, \\verb+\\item+, and \\verb+\\end{...}+
+commands in the input document according to their nesting level can help 
+clarify the structure."))
+  "
+
+Here is a very simple table showing data lined up in columns.
+Notice that I include the table in a ``center'' environment to
+display it properly.  The title is created simply as another
+paragraph in the center environment, rather than as part of the
+table itself."
+  (center
+   "Numbers of Computers on Earth Sciences Network, By Type."
+   (tabular
+    "lr"
+    ("Macintosh" "175")
+    ("DOS/Windows PC" "60")
+    ("UNIX Workstation or server" "110"))))
+
+;;** Mathematical Equations
+(defsection mathematical-equations "Mathematical Equations"
+  "Simple equations, like" ($ "x^y") "or" ($ "x_n = \\sqrt{a + b}")
+  "can be typeset right in the text line by enclosing them in a
+pair of single dollar sign symbols.  Don't forget that if you
+want a real dollar sign in your text, like \\$2000, you have to use the \\verb+\\$+ command."
+  \\
+  "The ``equation'' environment displays your equations, and
+automatically numbers them consecutively within your document,
+like this:"
+  (equation
+   "\\left[
+X + a \\ge \\underline{\\hat a} \\sum_i^N\\lim_{x \\rightarrow k} \\delta C
+\\right]"))
+
+
+
+

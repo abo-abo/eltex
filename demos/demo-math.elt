@@ -1,0 +1,113 @@
+(setq eltex-filename "~/tpaper/tpaper.tex")
+(require 'eltex-macros)
+
+;;* Document
+(documentclass
+ "article"
+ (usepackage
+  '("amsmath" "fleqn")
+  "amsthm"
+  "enumerate"
+  "amsfonts"
+  "xcolor"
+  '("biblatex" "style=numeric,natbib=true,backend=bibtex"))
+ (bibliography "analysis")
+ (document
+  (section "Introduction"
+           (homogenization)
+           (smoluchowski-equation))
+  (section "Notations and Assumptions"
+           (model-description-geometry))
+  "\\printbibliography"))
+
+;;* Code
+(defmath half "\\frac{1}{2}")
+(defmath eps "\\varepsilon")
+(defmath Time "(0,T)" :var ($ "t"))
+(defmath coll "u")
+(defmath temp "\\theta")
+(defmath Domain "\\Omega"
+  :var ($ "x")
+  :t-Neumann   (mformat "\\Gamma_N^{%s}" temp)
+  :t-Robin     (mformat "\\Gamma_R^{%s}" temp)
+  :t-Dirichlet (mformat "\\Gamma_D^{%s}" temp)
+  :u-Neumann   (mformat "\\Gamma_N^{%s}" coll)
+  :u-Robin     (mformat "\\Gamma_R^{%s}" coll)
+  :u-Dirichlet (mformat "\\Gamma_R^{%s}" coll))
+(defmath unit-cell "Y"
+  :boundary ($ "\\Gamma"))
+
+(put 'unit-cell :solid (sub unit-cell "0"))
+(put 'unit-cell :fluid (sub unit-cell "1"))
+
+;;** Smoluchowski equation
+(defsection smoluchowski-equation "Smoluchowski population balance equation"
+  "We want to model the transport of aggregating colloidal
+  particles under the influence of thermal gradients.  We use the
+  Smoluchowski population balance equation, originally proposed
+  in "
+  (cite "smoluchowski1917versuch") ", to account for colloidal aggregation:"
+  (with ((x ($ "x"))
+         (coag "\\alpha")
+         (i ($ "i"))
+         (j ($ "j"))
+         (k "k")
+         (N ($ "M")))
+        (align
+         (label "eq:aggregation-Smoluchowski")
+         "R_" i "(" x "):=" half "\\sum_{" k "+" j "=" i "}" coag "_{" k "" j "}" x "_" k x "_" j
+         " - \\sum_{" j "=1}^" N coag "_{" i j "}" x "_" i x "_" j
+         ", && " i (in-range N) ";\\:" N ">2")
+        \\
+        "Here" ($ x "_" i)
+        "is the concentration of the colloidal species that consists of" i "monomers," \n
+        N "is the number of species, i.e. the maximal aggregate size that we consider, "
+        ($ "R_@i(@x)") "is the rate of change of" ($ x "_" i)
+        ", and" ($ coag "_{" i j "}>0") "are the coagulation coefficients, which tell us the rate
+        aggregation between particles of size" i "and " j (cite "elimelech1998particle") "."))
+
+;;** Homogenization
+(defsection homogenization "Homogenization"
+  "Homogenization is a technique to derive a macroscopic model from
+microscopic processes which are assumed to be theoretically treatable.
+The complexity of the microscopic system, however, makes numerical
+simulations on the macro scale very expensive. An introduction to
+homogenization can be found in " (cite "hornung1991diffusion") ".")
+
+;;** Model Description
+(defsection model-description-geometry "Model description and geometry"
+  "The geometry of the problem is depicted in Figure 1,
+given a scale factor "eps($ ">0")"."
+  (table
+   "h!"
+   (with ((uRobin     (get 'Domain :u-Robin))
+          (uNeumann   (get 'Domain :u-Neumann))
+          (tRobin     (get 'Domain :t-Robin))
+          (tDirichlet (get 'Domain :t-Dirichlet))
+          (unit-cell/solid (get 'unit-cell :solid))
+          (unit-cell/fluid (get 'unit-cell :fluid))
+          (i "i")
+          (n "n")
+          (== ($ "=")))
+         (tabular
+          "ll"
+          (Time             (== "time interval of interest"))
+          (Domain           (== "bounded domain in" (Real n)))
+          ((partial Domain) (== ($ uRobin "\\cup" uNeumann "=" tRobin "\\cup" tDirichlet)
+                                "\npiecewise smooth boundary of" Domain ","))
+          (""               ($ "\\quad" uRobin "\\cup" uNeumann "="
+                               tRobin "\\cup" tDirichlet "=\\emptyset"))
+          ((unit-vector i)       (== i"th unit vector in"(Real n)))
+          (unit-cell        (($ "=" (seq (sum i n) "\\lambda_" i (unit-vector i)
+                                         ":\\: 0<\\lambda_" i "<1"))
+                             "unit cell in" (Real n)))
+          (unit-cell/solid  (== "open subset of" unit-cell "that represents the solid grain"))
+          (unit-cell/fluid  (== ($ unit-cell "\\setminus " (closure unit-cell/solid))))
+          ((get 'unit-cell
+                :boundary)  (== (partial unit-cell/solid) "piecewise smooth boundary of"
+                                unit-cell/solid))
+          (let ((X ($ "X"))
+                (k ($ "k")))
+            (row ($ X"^"k) (== X ($ "+" (sum i n) k "_" i (unit-vector i))
+                               ", where " k ($ "\\in " (Integer n)) "and"
+                               X ($ "\\subset ") unit-cell)))))))
